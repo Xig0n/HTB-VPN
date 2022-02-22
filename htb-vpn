@@ -1,0 +1,79 @@
+#!/usr/bin/bash
+## This program start the htb openvpn ##
+
+## VPNs PATH
+vpn_sp=""   # Starting-Point PATH 
+vpn_ma=""   # Machines PATH
+interface="tun0" # tun0 = default
+if [ -n "`ifconfig -a tun0 2>/dev/null`" ]; then ## Check the interface
+    interface="tun1" 
+fi 
+# COLORS
+greenColour="\e[0;32m\033[1m"
+endColour="\033[0m\e[0m"
+redColour="\e[0;31m\033[1m"
+blueColour="\e[0;34m\033[1m"
+yellowColour="\e[0;33m\033[1m"
+purpleColour="\e[0;35m\033[1m"
+turquoiseColour="\e[0;36m\033[1m"
+grayColour="\e[0;37m\033[1m"
+
+opciones=('-m' '-h' '-s')
+
+
+## CHECK ROOT
+if [ "`id -u`" != "0" ]; then
+    echo -e "${redColour}[!]${endColour} This program requires root privileges"
+    exit 3
+fi
+
+## CHECK OPENVPN
+if [ -z "`openvpn --version`" ]; then
+    echo -e "${redColour}[!] openvpn is not installed"
+    echo -e "[*] Installing openvpn${endColour}"
+    sleep 2
+    sudo apt install openvpn -y 
+    exit
+fi
+
+## Help Panel
+if [[ "$1" == "-h" || "$1" == "--help" || $# -le 0 ]]; then
+    echo -e "Usage: ${redColour}htb-vpn${endColour} ${turquoiseColour}{Opciones}${endColour}"
+    echo -e "    ${blueColour}-m | --machine${endColour} : Start machines VPN"
+    echo -e "    ${blueColour}-s | --starting-point${endColour} : Start starting-point VPN"
+    echo -e "    ${blueColour}-k | --kill ${endColour} : Kill all VPN process" 
+    echo -e "    ${blueColour}-h | --help${endColour} : Display this help and exit\n"
+    exit
+fi
+
+## First use
+if [[ -z $vpn_ma || -z $vpn_sp ]]; then
+    echo "${redColour}[!]${endColour} Write de vars path\n"
+    exit 10
+fi
+## VPN Machine
+if [[ "$1" == "-m" || "$1" == "--machine" ]]; then
+    echo -e "${yellowColour}[*]${endColour} Runing machine VPN"
+    openvpn ${vpn_ma} > /dev/null & 
+    disown
+    sleep 0.5 
+    echo -e "    ${purpleColour}IP ${interface}${endColour} `ifconfig -a ${interface} | grep inet | head -n +1 | sed "s/  */ /g" | cut -d" " -f3`"
+fi
+## VPN Starting Point
+if [[ "$1" == "-s" || "$1" == "--starting-point" ]]; then
+    echo -e "${yellowColour}[*]${endColour} Runing starting-point VPN"
+    openvpn ${vpn_sp} > /dev/null & 
+    disown
+    sleep 1
+    echo -e "    ${purpleColour}IP ${interface}${endColour} `ifconfig -a ${interface} | grep inet | head -n +1 | sed "s/  */ /g" | cut -d" " -f3`"
+fi
+## Kill openvpn process
+if [[ "$1" == "-k" || "$1" == "--kill" ]]; then
+    echo -e "${yellowColour}[*]${endColour} Killing VPN process\n"
+    killall openvpn >/dev/null 2>&1
+    if [ $? == 1 ]; then
+        echo -e "    ${redColour}[!]${endColour} There are no active process\n"
+        exit 5
+    fi
+    exit
+fi
