@@ -19,3 +19,7 @@
   <li><b style=>-k -></b> <i>Kill all openvpn process or return a error if openvpn is asleep </i></li>
   <li><b style=>-h -></b> <i>Display the help menu and exit</i></li>
 </ul>
+
+<h2>Examples</h2>
+<img src="imgs/parameters2.png">
+
