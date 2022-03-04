@@ -2,8 +2,8 @@
 ## This program start the htb openvpn ##
 
 ## VPNs PATH
-vpn_sp="/home/simon/Descargas/htb/starting.ovpn"   # Starting-Point PATH 
-vpn_ma="/home/simon/Descargas/htb/htb.ovpn"   # Machines PATH
+vpn_sp=""   # Starting-Point PATH 
+vpn_ma=""   # Machines PATH
 interface="tun0" # tun0 = default
 
 if [ -n "`ifconfig -a tun0 2>/dev/null`" ]; then ## Check the interface
